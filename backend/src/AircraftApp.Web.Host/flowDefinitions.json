@@ -1,0 +1,193 @@
+[
+  {
+    "id": "flow-MaintenanceRequest-approval",
+    "name": "MaintenanceRequest Approval Flow",
+    "edges": [
+      {
+        "id": "gen_1780917264211_13",
+        "sourceNodeId": "gen_1780917264211_11",
+        "targetNodeId": "gen_1780917264211_12"
+      },
+      {
+        "id": "gen_1780917264211_15",
+        "branch": "true",
+        "sourceNodeId": "gen_1780917264211_12",
+        "targetNodeId": "gen_1780917264211_14"
+      },
+      {
+        "id": "gen_1780917264212_17",
+        "sourceNodeId": "gen_1780917264211_14",
+        "targetNodeId": "gen_1780917264211_16"
+      },
+      {
+        "id": "gen_1780917264212_20",
+        "sourceNodeId": "gen_1780917264212_18",
+        "targetNodeId": "gen_1780917264212_19"
+      }
+    ],
+    "nodes": [
+      {
+        "id": "gen_1780917264211_11",
+        "type": "trigger",
+        "label": "On MaintenanceRequest Submit",
+        "trigger": {
+          "type": "on-field-change",
+          "fieldName": "status",
+          "resourceName": "MaintenanceRequest"
+        },
+        "position": {
+          "x": 300,
+          "y": 50
+        }
+      },
+      {
+        "id": "gen_1780917264211_12",
+        "type": "condition",
+        "label": "Status = PendingLineMechanicApproval?",
+        "position": {
+          "x": 300,
+          "y": 160
+        },
+        "condition": {
+          "logic": "and",
+          "rules": [
+            {
+              "field": "triggerData.statusName",
+              "value": "PendingLineMechanicApproval",
+              "operator": "equals"
+            }
+          ]
+        }
+      },
+      {
+        "id": "gen_1780917264211_14",
+        "type": "approval",
+        "label": "MaintenanceRequest Approval",
+        "approval": {
+          "steps": [
+            {
+              "name": "Line Mechanic Approval",
+              "actions": [
+                {
+                  "type": "approve",
+                  "label": "Approve"
+                },
+                {
+                  "type": "revise",
+                  "label": "Revise",
+                  "requiredFields": [
+                    "revisionNote"
+                  ]
+                }
+              ],
+              "assigneeType": "field",
+              "assigneeValue": "lineMechanicId"
+            },
+            {
+              "name": "Quality Inspector Approval",
+              "actions": [
+                {
+                  "type": "approve",
+                  "label": "Approve"
+                },
+                {
+                  "type": "revise",
+                  "label": "Revise",
+                  "requiredFields": [
+                    "revisionNote"
+                  ]
+                }
+              ],
+              "assigneeType": "field",
+              "assigneeValue": "qualityInspectorId"
+            }
+          ],
+          "onCompleteEvent": "MaintenanceRequest-approval-completed",
+          "revisionAssignee": "creator",
+          "trackRevisionHistory": true
+        },
+        "position": {
+          "x": 300,
+          "y": 280
+        }
+      },
+      {
+        "id": "gen_1780917264211_16",
+        "type": "action",
+        "label": "Send Approval Email",
+        "action": {
+          "type": "send-email",
+          "config": {
+            "to": "{{assigneeEmail}}",
+            "body": "<p>Sayın onaycı,</p><p><strong>{{triggerData.requestNumber}}</strong> numaralı bakım talebi onayınızı beklemektedir.</p><p>Uçak: {{triggerData.aircraftRegistrationNumber}}</p><p>Açıklama: {{triggerData.description}}</p>",
+            "subject": "{{triggerData.requestNumber}} — Bakım Talebi Onayınızı Bekliyor",
+            "contentType": "html"
+          }
+        },
+        "position": {
+          "x": 300,
+          "y": 400
+        }
+      },
+      {
+        "id": "gen_1780917264212_18",
+        "type": "trigger",
+        "label": "On MaintenanceRequest Approved",
+        "trigger": {
+          "type": "manual",
+          "resourceName": "MaintenanceRequest"
+        },
+        "position": {
+          "x": 700,
+          "y": 50
+        }
+      },
+      {
+        "id": "gen_1780917264212_19",
+        "type": "action",
+        "label": "Send Completion Email",
+        "action": {
+          "type": "send-email",
+          "config": {
+            "cc": "{{departmentEmails}}",
+            "to": "{{creatorEmail}}",
+            "body": "<p>{{triggerData.formNo}} numarali formun onay sureci tamamlanmistir.</p>",
+            "subject": "{{triggerData.formNo}} — Tum onaylar tamamlandi",
+            "contentType": "html"
+          }
+        },
+        "position": {
+          "x": 700,
+          "y": 160
+        }
+      }
+    ],
+    "enabled": true,
+    "createdAt": "2026-06-08T11:14:24.211Z",
+    "updatedAt": "2026-06-10T20:02:53.633Z",
+    "variables": [
+      {
+        "name": "assigneeEmail",
+        "type": "string",
+        "defaultValue": ""
+      },
+      {
+        "name": "creatorEmail",
+        "type": "string",
+        "defaultValue": ""
+      },
+      {
+        "name": "departmentEmails",
+        "type": "string",
+        "defaultValue": ""
+      },
+      {
+        "name": "formLink",
+        "type": "string",
+        "defaultValue": ""
+      }
+    ],
+    "description": "Auto-generated approval flow for MaintenanceRequest. Customize email templates and add conditions as needed.",
+    "resourceName": "MaintenanceRequest"
+  }
+]
