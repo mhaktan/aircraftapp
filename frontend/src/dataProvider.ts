@@ -10,7 +10,7 @@ const extractToken = (data: Record<string, unknown>, path: string): string | und
   const val = getNestedValue(data, path) as string | undefined;
   if (val) return val;
   // Fallback: try common token locations
-  const fallbacks = ['data.token', 'data.accessToken', 'data.access_token', 'token', 'accessToken', 'access_token', 'result.token'];
+  const fallbacks = ['data.token', 'data.accessToken', 'data.access_token', 'token', 'accessToken', 'access_token', 'result.token', 'result.accessToken'];
   for (const fb of fallbacks) {
     if (fb === path) continue;
     const v = getNestedValue(data, fb) as string | undefined;

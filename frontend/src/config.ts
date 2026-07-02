@@ -15,6 +15,6 @@ export const TOKEN_ENDPOINT = import.meta.env.VITE_TOKEN_ENDPOINT || '/api/Token
 
 export const LOGIN_FIELD = import.meta.env.VITE_LOGIN_FIELD || 'userNameOrEmailAddress';
 
-export const TOKEN_RESPONSE_PATH = import.meta.env.VITE_TOKEN_RESPONSE_PATH || 'result.result.accessToken';
+export const TOKEN_RESPONSE_PATH = import.meta.env.VITE_TOKEN_RESPONSE_PATH || 'result.accessToken';
 
 export const CUSTOM_HEADERS: Record<string, string> = {};
