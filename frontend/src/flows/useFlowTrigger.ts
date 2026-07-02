@@ -19,14 +19,13 @@ type FlowDefJson = {
  */
 export function useFlowTrigger(baseApiUrl: string, authToken?: string) {
   const triggerFlows = useCallback(
-    async (event: CrudEvent, resourceName: string, data: Record<string, unknown>): Promise<ExecutionResult[]> => {
+    async (event: CrudEvent, resourceName: string, data: Record<string, unknown>): Promise<void> => {
       const eventMap: Record<CrudEvent, string> = {
         create: 'on-create',
         update: 'on-update',
         delete: 'on-delete',
       };
       const triggerType = eventMap[event];
-      const results: ExecutionResult[] = [];
 
       for (const flow of flowDefs as unknown as FlowDefJson[]) {
         if (!flow.enabled) continue;
@@ -48,7 +47,6 @@ export function useFlowTrigger(baseApiUrl: string, authToken?: string) {
 
           try {
             const result = await executeFlow(flow as any, ctx);
-            results.push(result);
             if (!result.success) {
               console.warn(`[Flow] "${flow.name}" completed with errors:`, result.errors);
             }
@@ -57,16 +55,12 @@ export function useFlowTrigger(baseApiUrl: string, authToken?: string) {
           }
         }
       }
-
-      return results;
     },
     [baseApiUrl, authToken]
   );
 
   const triggerFieldChange = useCallback(
-    async (resourceName: string, fieldName: string, newValue: unknown, record: Record<string, unknown>): Promise<ExecutionResult[]> => {
-      const results: ExecutionResult[] = [];
-
+    async (resourceName: string, fieldName: string, newValue: unknown, record: Record<string, unknown>): Promise<void> => {
       for (const flow of flowDefs as unknown as FlowDefJson[]) {
         if (!flow.enabled) continue;
 
@@ -88,7 +82,6 @@ export function useFlowTrigger(baseApiUrl: string, authToken?: string) {
 
           try {
             const result = await executeFlow(flow as any, ctx);
-            results.push(result);
             if (!result.success) {
               console.warn(`[Flow] "${flow.name}" completed with errors:`, result.errors);
             }
@@ -97,18 +90,16 @@ export function useFlowTrigger(baseApiUrl: string, authToken?: string) {
           }
         }
       }
-
-      return results;
     },
     [baseApiUrl, authToken]
   );
 
   const triggerManualFlow = useCallback(
-    async (flowId: string, data: Record<string, unknown> = {}) => {
-      const flow = flows.find(f => f.id === flowId && f.enabled);
+    async (flowId: string, data: Record<string, unknown> = {}): Promise<void> => {
+      const flow = (flowDefs as unknown as FlowDefJson[]).find(f => f.id === flowId && f.enabled);
       if (!flow) { console.warn('[Flow] Manual flow not found or disabled:', flowId); return; }
       console.log('[Flow] Manual trigger:', flow.name);
-      const result = await executeFlow(flow, { variables: {}, triggerData: data, baseApiUrl, authToken });
+      const result = await executeFlow(flow as any, { variables: {}, triggerData: data, baseApiUrl, authToken });
       if (!result.success) console.warn('[Flow] Manual flow errors:', result.errors);
     },
     [baseApiUrl, authToken]

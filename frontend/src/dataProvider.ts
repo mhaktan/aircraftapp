@@ -72,6 +72,7 @@ interface ResourceConfig {
   orderParam?: string;
   filterStyle?: 'search' | 'bracket' | 'raw';
   searchParam?: string;
+  abpStyle?: true;
 }
 
 const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
@@ -246,9 +247,10 @@ export const dataProvider = {
     if (filter) {
       if (c.filterStyle === 'search' && c.searchParam) {
         // Search style: Keyword → searchParam, other keys → direct query params
+        const searchParam = c.searchParam;
         Object.entries(filter).forEach(([k, v]) => {
           if (v === '' || v === undefined || v === null) return;
-          if (k === c.searchParam || k === "Keyword") { qs.set(c.searchParam, String(v)); }
+          if (k === searchParam || k === "Keyword") { qs.set(searchParam, String(v)); }
           else { qs.set(k, String(v)); }
         });
       } else {
